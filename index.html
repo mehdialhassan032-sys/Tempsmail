@@ -23,14 +23,13 @@
     .lock-desc { font-size: 12px; color: #64748b; margin-bottom: 20px; }
     .password-wrapper { position: relative; width: 100%; margin-bottom: 15px; display: flex; align-items: center; }
     .lock-input {
-      width: 100%; padding: 12px 45px 12px 12px; border-radius: 8px; border: 1px solid #334155;
+      width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #334155;
       background: #020617; color: #fff; font-size: 14px; text-align: center; outline: none; letter-spacing: 2px;
     }
-    .eye-btn { position: absolute; right: 10px; background: transparent; border: none; cursor: pointer; color: #38bdf8; font-size: 18px; padding: 5px; }
     .lock-btn { width: 100%; padding: 12px; background: #0078d4; color: #fff; border: none; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; }
     .error-msg { color: #ef4444; font-size: 12px; margin-top: 10px; display: none; }
 
-    /* Main App Styles */
+    /* Main App Styles - Default hidden */
     .app-card { 
       background: #0f172a; border-radius: 16px; width: 100%; max-width: 480px; 
       border: 1px solid #1e293b; box-shadow: 0 20px 40px rgba(0,0,0,0.8); 
@@ -93,7 +92,6 @@
     <div class="lock-desc">Enter password to unlock Mail Engine</div>
     <div class="password-wrapper">
       <input type="password" id="passInput" class="lock-input" placeholder="Enter Password" autocomplete="off">
-      <button type="button" class="eye-btn" id="eyeBtn">👁️</button>
     </div>
     <button type="button" class="lock-btn" id="unlockBtn">Unlock Engine</button>
     <div id="errorMsg" class="error-msg">Incorrect Password! Try again.</div>
@@ -133,14 +131,14 @@
     <div class="field-group">
       <span class="field-label">Select Domain Gateway</span>
       <select id="domainSelect">
-        <option value="outlook.com">outlook.com ⚡ (Outlook Primary)</option>
-        <option value="hotmail.com">hotmail.com (Outlook Secondary)</option>
-        <option value="esiia.com">esiia.com 🔥 (Facebook Fast OTP)</option>
-        <option value="1secmail.com">1secmail.com 💯 (Facebook Supported)</option>
-        <option value="1secmail.org">1secmail.org (Facebook Backup)</option>
-        <option value="1secmail.net">1secmail.net (Global High-Deliverability)</option>
-        <option value="wwdmail.com">wwdmail.com (Instant OTP)</option>
-        <option value="dvcmail.com">dvcmail.com (Secure Bypass Domain)</option>
+        <option value="outlook.com">outlook.com</option>
+        <option value="hotmail.com">hotmail.com</option>
+        <option value="esiia.com">esiia.com</option>
+        <option value="1secmail.com">1secmail.com</option>
+        <option value="1secmail.org">1secmail.org</option>
+        <option value="1secmail.net">1secmail.net</option>
+        <option value="wwdmail.com">wwdmail.com</option>
+        <option value="dvcmail.com">dvcmail.com</option>
       </select>
     </div>
 
@@ -201,7 +199,7 @@
 <div id="toast" class="toast">Copied!</div>
 
 <script>
-  const CORRECT_PASS = "M9954131";
+  const CORRECT_PASS = "1234";
 
   const DB = {
     egypt: {
@@ -236,50 +234,55 @@
     domain: "outlook.com"
   };
 
-  document.addEventListener("DOMContentLoaded", function() {
+  window.onload = function() {
     const unlockBtn = document.getElementById("unlockBtn");
     const passInput = document.getElementById("passInput");
-    const eyeBtn = document.getElementById("eyeBtn");
 
-    if(unlockBtn) unlockBtn.addEventListener("click", verifyPassword);
-    if(passInput) {
-      passInput.addEventListener("keydown", function(e) {
+    if (localStorage.getItem("isUnlocked") === "true") {
+      unlockApp();
+    }
+
+    if (unlockBtn) {
+      unlockBtn.onclick = verifyPassword;
+    }
+
+    if (passInput) {
+      passInput.onkeydown = function(e) {
         if (e.key === "Enter") verifyPassword();
-      });
+      };
+      passInput.oninput = function() {
+        const errorMsg = document.getElementById("errorMsg");
+        if (errorMsg) errorMsg.style.display = "none";
+      };
     }
-    if(eyeBtn) eyeBtn.addEventListener("click", togglePasswordVisibility);
-  });
-
-  function togglePasswordVisibility(e) {
-    if(e) e.preventDefault();
-    const input = document.getElementById("passInput");
-    const btn = document.getElementById("eyeBtn");
-    if (input.type === "password") {
-      input.type = "text";
-      btn.innerHTML = "🙈";
-    } else {
-      input.type = "password";
-      btn.innerHTML = "👁️";
-    }
-  }
+  };
 
   function verifyPassword() {
     const passInput = document.getElementById("passInput");
     const errorMsg = document.getElementById("errorMsg");
-    const lockScreen = document.getElementById("lockScreen");
-    const mainApp = document.getElementById("mainApp");
 
     if (!passInput) return;
     const val = passInput.value.trim();
 
     if (val === CORRECT_PASS) {
-      if(lockScreen) lockScreen.style.display = "none";
-      if(mainApp) mainApp.style.display = "block";
-      setupEvents();
-      generateProfile();
+      localStorage.setItem("isUnlocked", "true");
+      unlockApp();
     } else {
-      if(errorMsg) errorMsg.style.display = "block";
+      if (errorMsg) errorMsg.style.display = "block";
+      passInput.value = "";
+      passInput.focus();
     }
+  }
+
+  function unlockApp() {
+    const lockScreen = document.getElementById("lockScreen");
+    const mainApp = document.getElementById("mainApp");
+
+    if (lockScreen) lockScreen.style.display = "none";
+    if (mainApp) mainApp.style.display = "block";
+    
+    setupEvents();
+    generateProfile();
   }
 
   function setupEvents() {
@@ -332,7 +335,7 @@
 
     if(get("setCustomBtn")) {
       get("setCustomBtn").onclick = function() {
-        const input = get("customUser").value.trim().toLowerCase().replace(/[^a-z0-9._]/g, '');
+        const input = document.getElementById("customUser").value.trim().toLowerCase().replace(/[^a-z0-9._]/g, '');
         if(input) {
           state.username = input;
           updateDisplay();
@@ -420,44 +423,60 @@
         for(let msg of list) {
           const detailRes = await fetch(`https://www.1secmail.com/api/v1/?action=readMessage&login=${state.username}&domain=${apiDomain}&id=${msg.id}`);
           const detail = await detailRes.json();
-          const body = detail.textBody || detail.body || "";
-          const otpMatch = `${detail.subject} ${body}`.match(/\b\d{5,8}\b/);
-          const otp = otpMatch ? otpMatch[0] : null;
 
-          container.innerHTML += `
-            <div class="msg-card">
-              <div class="msg-sender">From: ${detail.from}</div>
-              <div class="msg-subject">${detail.subject}</div>
-              <div class="msg-body">${body}</div>
-              ${otp ? `<div class="otp-wrapper"><span>OTP: <span class="otp-code">${otp}</span></span><button class="btn-otp-copy" onclick="copyVal('${otp}')">COPY OTP</button></div>` : ''}
-            </div>
+          let otpCode = "";
+          const textContent = detail.body || detail.textBody || "";
+          const otpMatch = textContent.match(/\b\d{4,8}\b/);
+          if(otpMatch) {
+            otpCode = otpMatch[0];
+          }
+
+          let otpHtml = "";
+          if(otpCode) {
+            otpHtml = `
+              <div class="otp-wrapper">
+                <span>OTP Code Detected:</span>
+                <div>
+                  <span class="otp-code">${otpCode}</span>
+                  <button class="btn-otp-copy" onclick="copyVal('${otpCode}')">Copy OTP</button>
+                </div>
+              </div>
+            `;
+          }
+
+          const card = document.createElement("div");
+          card.className = "msg-card";
+          card.innerHTML = `
+            <div class="msg-sender">From: ${msg.from}</div>
+            <div class="msg-subject">${msg.subject}</div>
+            <div class="msg-body">${textContent}</div>
+            ${otpHtml}
           `;
+          container.appendChild(card);
         }
       } else {
         container.innerHTML = `<p style="color:#64748b; font-size:12px; text-align:center; padding:15px 0;">Waiting for incoming OTP / Email...</p>`;
       }
-    } catch(e) {}
+    } catch(err) {
+      console.error("Inbox fetch error:", err);
+    }
   }
 
-  window.copyVal = function(str) {
-    if(!str) return;
-    const el = document.createElement('textarea');
-    el.value = str;
-    document.body.appendChild(el);
-    el.select();
-    document.execCommand('copy');
-    document.body.removeChild(el);
-    showToast("Copied!");
-  };
+  function copyVal(val) {
+    navigator.clipboard.writeText(val).then(() => {
+      showToast("Copied to clipboard!");
+    });
+  }
 
   function showToast(msg) {
-    const t = document.getElementById("toast");
-    if(!t) return;
-    t.innerText = msg;
-    t.style.display = "block";
-    setTimeout(() => { t.style.display = "none"; }, 2000);
+    const toast = document.getElementById("toast");
+    if(!toast) return;
+    toast.innerText = msg;
+    toast.style.display = "block";
+    setTimeout(() => {
+      toast.style.display = "none";
+    }, 2000);
   }
 </script>
-
 </body>
 </html>
