@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UI Layout Analysis</title>
-    <!-- FontAwesome for icons -->
+    <title>Stealth Secure Browser</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -70,14 +69,33 @@
         .main-content {
             flex-grow: 1;
             display: flex;
-            justify-content: center;
-            align-items: center;
-            border: 1px dashed #ddd; /* Placeholder border to show content region */
+            flex-direction: column;
+            border: 1px solid #ddd;
             border-radius: 8px;
             margin-bottom: 20px;
-            padding: 20px;
+            padding: 15px;
+            overflow-y: auto;
+            background-color: #fafafa;
+        }
+
+        .search-item {
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: background 0.2s;
+        }
+
+        .search-item:hover {
+            background: #f0f0f0;
+        }
+
+        .no-results {
             text-align: center;
             color: #888;
+            margin-top: 40px;
         }
 
         /* Bottom Navigation Bar */
@@ -88,6 +106,7 @@
             width: 100%;
             padding: 10px 0;
             border-top: 1px solid #eee;
+            position: relative;
         }
 
         .nav-item {
@@ -102,6 +121,40 @@
         .nav-item:hover {
             color: #555;
         }
+
+        /* Menu Dropdown Style */
+        .menu-dropdown {
+            position: relative;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            bottom: 50px;
+            background: #ffffff;
+            min-width: 180px;
+            box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+            border-radius: 8px;
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        .dropdown-content button {
+            display: block;
+            width: 100%;
+            padding: 12px 16px;
+            border: none;
+            cursor: pointer;
+            background: none;
+            text-align: left;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .dropdown-content button:hover {
+            background-color: #f1f1f1;
+        }
     </style>
 </head>
 <body>
@@ -110,71 +163,215 @@
     <header class="top-bar">
         <div class="search-container">
             <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" id="searchInput" placeholder="Search...">
+            <input type="text" id="searchInput" placeholder="Search items or URLs...">
         </div>
-        <button class="refresh-btn" id="refreshBtn" title="Refresh">
+        <button class="refresh-btn" id="refreshBtn" title="Refresh Page">
             <i class="fa-solid fa-rotate-right"></i>
         </button>
     </header>
 
     <!-- Main Content Area -->
     <main class="main-content" id="mainContent">
-        <p>Main Content Area (Dynamic results will appear here)</p>
+        <div class="search-item">Apple</div>
+        <div class="search-item">Banana</div>
+        <div class="search-item">Cherry</div>
+        <div class="search-item">Grapes</div>
+        <div class="search-item">Orange</div>
+        <div class="search-item">Strawberry</div>
+        <div class="search-item">Watermelon</div>
     </main>
 
     <!-- Bottom Navigation Bar -->
     <nav class="bottom-nav">
-        <button class="nav-item" id="deleteBtn" title="Delete">
+        <button class="nav-item" id="deleteBtn" title="Clear History & Fresh Cookies">
             <i class="fa-solid fa-trash-can"></i>
         </button>
+        
         <button class="nav-item" id="homeBtn" title="Home">
             <i class="fa-solid fa-house"></i>
         </button>
-        <button class="nav-item" id="menuBtn" title="Menu">
-            <i class="fa-solid fa-bars"></i>
-        </button>
+
+        <div class="menu-dropdown">
+            <button class="nav-item" id="menuToggleBtn" title="Menu">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <div id="myDropdown" class="dropdown-content">
+                <button id="desktopModeBtn"><i class="fa-solid fa-desktop" style="margin-right: 8px;"></i> Desktop Mode</button>
+                <button id="rotateAgentBtn"><i class="fa-solid fa-shuffle" style="margin-right: 8px;"></i> Rotate User-Agent</button>
+                <button id="settingsBtn"><i class="fa-solid fa-gear" style="margin-right: 8px;"></i> Stealth Settings</button>
+            </div>
+        </div>
     </nav>
 
-    <!-- JavaScript functionality -->
+    <!-- Advanced Anti-Fingerprinting & Browser Logic -->
     <script>
-        // Select elements
+        // 1. ANTI-FINGERPRINTING & STEALTH SHIELD
+        (function() {
+            // Mask WebDriver detection flag
+            Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+
+            // Mock plugins to look like a standard human browser
+            Object.defineProperty(navigator, 'plugins', {
+                get: () => [1, 2, 3, 4, 5]
+            });
+
+            // Canvas Noise Injection to prevent hardware tracking/fingerprinting
+            const originalToDataURL = HTMLCanvasElement.prototype.toDataURL;
+            HTMLCanvasElement.prototype.toDataURL = function(type) {
+                const ctx = this.getContext('2d');
+                if (ctx) {
+                    // Slight color shift noise injection
+                    const shift = (Math.random() - 0.5) * 0.01;
+                    ctx.fillStyle = `rgba(255,255,255,${Math.abs(shift)})`;
+                    ctx.fillRect(0, 0, 1, 1);
+                }
+                return originalToDataURL.apply(this, arguments);
+            };
+        })();
+
+        // 2. USER-AGENT ROTATION POOL
+        const userAgents = [
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2.1 Safari/605.1.15",
+            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36"
+        ];
+
+        function getRandomUserAgent() {
+            const randomIndex = Math.floor(Math.random() * userAgents.length);
+            return userAgents[randomIndex];
+        }
+
+        // Apply initial randomized User-Agent profile to session storage if not present
+        if (!localStorage.getItem('active_ua')) {
+            localStorage.setItem('active_ua', getRandomUserAgent());
+        }
+
+        // DOM Element Bindings
         const searchInput = document.getElementById('searchInput');
+        const mainContent = document.getElementById('mainContent');
         const refreshBtn = document.getElementById('refreshBtn');
         const deleteBtn = document.getElementById('deleteBtn');
         const homeBtn = document.getElementById('homeBtn');
-        const menuBtn = document.getElementById('menuBtn');
-        const mainContent = document.getElementById('mainContent');
+        const menuToggleBtn = document.getElementById('menuToggleBtn');
+        const myDropdown = document.getElementById('myDropdown');
+        const desktopModeBtn = document.getElementById('desktopModeBtn');
+        const rotateAgentBtn = document.getElementById('rotateAgentBtn');
+        const settingsBtn = document.getElementById('settingsBtn');
 
-        // Event listener for Search Bar input
+        const items = [
+            "Apple", "Banana", "Cherry", "Grapes", 
+            "Orange", "Strawberry", "Watermelon"
+        ];
+
+        function renderItems(filteredItems) {
+            mainContent.innerHTML = '';
+            if (filteredItems.length === 0) {
+                mainContent.innerHTML = `<div class="no-results">No results found</div>`;
+                return;
+            }
+            filteredItems.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'search-item';
+                div.textContent = item;
+                mainContent.appendChild(div);
+            });
+        }
+
+        // Live Search Filtering with Human-like Typing Latency Simulation
+        let typingTimer;
         searchInput.addEventListener('input', (e) => {
-            const query = e.target.value;
-            console.log("Searching for:", query);
-            // Add your dynamic search logic here
+            clearTimeout(typingTimer);
+            const query = e.target.value.toLowerCase().trim();
+            
+            // Add a small human-like delay before filtering
+            typingTimer = setTimeout(() => {
+                const filtered = items.filter(item => item.toLowerCase().includes(query));
+                renderItems(filtered);
+            }, 150);
         });
 
-        // Event listener for Refresh Button
+        // Human-like Action Wrapper to prevent rapid fire bot triggers
+        function humanDelayAction(callback) {
+            const delay = Math.floor(Math.random() * 400) + 200; // 200ms - 600ms random lag
+            setTimeout(callback, delay);
+        }
+
+        // Refresh Action with Stealth Latency
         refreshBtn.addEventListener('click', () => {
-            mainContent.innerHTML = `<p style="color: green;">Content refreshed successfully!</p>`;
-            setTimeout(() => {
-                mainContent.innerHTML = `<p>Main Content Area (Dynamic results will appear here)</p>`;
-            }, 1500);
+            humanDelayAction(() => {
+                window.location.reload();
+            });
         });
 
-        // Event listener for Delete Button
+        // Delete Action: Clears Cache, Wipes Data, and Generates Brand New Cookies
         deleteBtn.addEventListener('click', () => {
-            alert("Delete action triggered!");
+            if (confirm("Clear local logs, wipe history, and generate a fresh session profile?")) {
+                localStorage.clear();
+                sessionStorage.clear();
+                
+                // Clear all active document cookies
+                document.cookie.split(";").forEach((c) => {
+                    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date(0).toUTCString() + ";path=/");
+                });
+
+                // Re-initialize fresh anti-bot fingerprint string
+                localStorage.setItem('active_ua', getRandomUserAgent());
+                
+                humanDelayAction(() => {
+                    alert("Clean state generated successfully with fresh stealth headers.");
+                    window.location.reload();
+                });
+            }
         });
 
-        // Event listener for Home Button
+        // Home Navigation Action
         homeBtn.addEventListener('click', () => {
-            alert("Home navigation triggered!");
+            humanDelayAction(() => {
+                searchInput.value = '';
+                renderItems(items);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
         });
 
-        // Event listener for Menu Button
-        menuBtn.addEventListener('click', () => {
-            alert("Menu options opened!");
+        // Dropdown Menu Toggles
+        menuToggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            myDropdown.style.display = myDropdown.style.display === 'block' ? 'none' : 'block';
+        });
+
+        myDropdown.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
+        window.addEventListener('click', () => {
+            myDropdown.style.display = 'none';
+        });
+
+        // Desktop Mode Viewport Toggle
+        desktopModeBtn.addEventListener('click', () => {
+            const viewport = document.querySelector('meta[name="viewport"]');
+            if (viewport.getAttribute('content').includes('width=device-width')) {
+                viewport.setAttribute('content', 'width=1280');
+                alert("Desktop Viewport Mode Active");
+            } else {
+                viewport.setAttribute('content', 'width=device-width, initial-scale=1.0');
+                alert("Mobile Viewport Mode Active");
+            }
+            myDropdown.style.display = 'none';
+        });
+
+        // Rotate User-Agent On Demand
+        rotateAgentBtn.addEventListener('click', () => {
+            const newUa = getRandomUserAgent();
+            localStorage.setItem('active_ua', newUa);
+            alert("Successfully rotated stealth User-Agent signature!");
+            myDropdown.style.display = 'none';
+        });
+
+        settingsBtn.addEventListener('click', () => {
+            alert("Stealth Shield Status: Active\nCanvas Blocker: Enabled\nAutomation Flags: Hidden");
+            myDropdown.style.display = 'none';
         });
     </script>
-
 </body>
 </html>
